@@ -1,9 +1,7 @@
 import pygame
-import math
 import random
 import pygame_gui
-import gauge
-import numpy
+import modules.game_objects as g_obj
 
 #Pygame Setup
 pygame.init()
@@ -61,9 +59,7 @@ slider_value = 6 #start speed
 movement_speed = 5
 
 #Load Images
-PLAYER_IMAGE = pygame.image.load("./Graphics/player.png").convert()
 SWORD_IMAGE = pygame.image.load("./Graphics/sword.png").convert()
-ENEMY_IMAGE = pygame.image.load("./Graphics/enemy.png").convert()
 HEART_IMAGE = pygame.image.load("./Graphics/heart.png").convert()
 heart_size = HEART_IMAGE.get_size()
 HEART_IMAGE = pygame.transform.scale(HEART_IMAGE, (int(heart_size[0]*0.19), int(heart_size[1]*0.19)))
@@ -71,87 +67,6 @@ HEART_IMAGE = pygame.transform.scale(HEART_IMAGE, (int(heart_size[0]*0.19), int(
 #Other
 DAMAGE_FACTOR = 1
 
-class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.image = PLAYER_IMAGE
-        self.rect = self.image.get_rect(topleft=(self.x, self.y))
-        self.current_health = 900 # we can pick whatever (in number)
-        self.maximum_health = 1000 # (in number)
-        self.health_bar_length = 900 - 215 # (in pixel) about half the size of the screen
-        self.health_ratio = self.maximum_health /self.health_bar_length
-        self.heart_image = HEART_IMAGE
-    def draw(self, display):
-        self.rect = self.image.get_rect(topleft=(self.x, self.y))
-        # return a width and height of an image
-        self.size = self.image.get_size()
-        # create a 2x bigger image than self.image
-        self.bigger_img = pygame.transform.scale(self.image, (int(self.size[0]*2), int(self.size[1]*2)))
-        display.blit(self.bigger_img,(self.x,self.y))
-        self.draw_health_bar()
-    def get_damage(self, amount):
-        if self.current_health > 0:
-            self.current_health -= amount
-        if self.current_health <= 0:
-            self.current_health = 0
-    def get_health(self, amount):
-        if self.current_health < self.maximum_health:
-            self.current_health += amount
-        if self.current_health >= self.maximum_health:
-            self.current_health = self.maximum_health
-    def draw_health_bar(self):
-        pygame.draw.rect(display,(255,0,0),(163,0, self.current_health/self.health_ratio, 50))
-        pygame.draw.rect(display,(255,255,255),(163,0,self.health_bar_length, 50),4) # white border
-
-
-class Enemy:
-    def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-    def draw(self, display):
-        self.enemy_image = ENEMY_IMAGE
-        # return a width and height of an image
-        self.size = self.enemy_image.get_size()
-        # create a 2x bigger image than self.image
-        self.bigger_img = pygame.transform.scale(self.enemy_image, (int(self.size[0]*1.3), int(self.size[1]*1.3)))
-        display.blit(self.bigger_img,(self.x,self.y))
-
-class Bullets(pygame.sprite.Sprite):
-        def __init__(self,x,y, player_x, player_y):
-            self.x = x
-            self.y = y
-            self.speed = slider_value
-            self.angle = math.atan2(y-player_y, x-player_x)
-            self.x_vel = math.cos(self.angle) * self.speed
-            self.y_vel = math.sin(self.angle) * self.speed
-            self.rect = pygame.draw.circle(display, (0,0,0), (self.x, self.y), 5)
-            self.reverse = 1
-        def draw(self, display):
-            self.x -= int(self.x_vel) * self.reverse
-            self.y -= int(self.y_vel) * self.reverse
-            if (self.x > 160) & (self.x<900): 
-                self.rect = pygame.draw.circle(display, (0,0,0), (self.x, self.y), 5)
-        def sword_collide(self, test_sprite):
-            if pygame.sprite.collide_rect(self, test_sprite):
-                self.reverse = (-self.reverse)
-                return True
-        def player_collide(self, test_sprite):
-            if pygame.sprite.collide_rect(self, test_sprite):
-                return True
-                
-
-player = Player(500,350,32,32)
-sword = Sword(player.x, player.y)
-enemy1 = Enemy(200,150,32,32)
-enemy2 = Enemy(200,450,16,16)
-enemy3 = Enemy(800,60,16,16)
-enemy4 = Enemy(800,350,16,16)
-enemy5 = Enemy(500,550,16,16)
 enemy1_bullets = []
 enemy2_bullets = []
 enemy3_bullets = []
@@ -360,6 +275,21 @@ def pygame_event_check():
                 
         manager.process_events(event)
 
+class Shooting_Game():
+    def __init__(self):
+        #Pygame Setup
+        self.pygame = pygame.init()
+        self.fps = 60
+
+        self.player = g_obj.Player(500,350,32,32, size=2, png_image="./Graphics/player.png")
+        self.enemy = (  g_obj.Enemy(200,150,32,32, size=1.3, png_image="./Graphics/enemy.png"),
+                        g_obj.Enemy(200,450,16,16, size=1.3, png_image="./Graphics/enemy.png"),
+                        g_obj.Enemy(800,60,16,16, size=1.3, png_image="./Graphics/enemy.png"),
+                        g_obj.Enemy(200,150,32,32, size=1.3, png_image="./Graphics/enemy.png"),
+                        )
+        print(self.player)
+        print(self.enemy)
+
 def main_pygame():
     global deltat_s, run, slider_value
     #Setup
@@ -390,5 +320,5 @@ def main_pygame():
     pygame.quit()
 
 if __name__ == '__main__':
-    main_pygame()
+    Shooting_Game()
     
