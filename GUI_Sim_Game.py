@@ -8,25 +8,7 @@ import numpy
 #Pygame Setup
 pygame.init()
 FPS = 60
-
-#accelerometer data
-atot_index = 0
-counter_1=1
-
-with open('acc_data.txt') as acc_data:
-    line_count = 0
-    atot = []
-    for row in acc_data:
-        column = row.split()
-        if not row.startswith('#'):
-            atot.append(column[4])
-        if counter_1> 4504:
-            break
-        counter_1+=1
-    atot.remove('atotal')
-    n_atot = len(atot)
         
-
 #Base Readings
 base_heart = 0;
 base_temp = 0;
@@ -67,11 +49,9 @@ background.fill((202,228,241), (903, 0, 500, display.get_height())) #teal backgr
 pygame.display.set_caption("Game Simulation")
 clock = pygame.time.Clock()
 
-player_image=pygame.image.load("player.png")
-enemy_image=pygame.image.load("enemy.png")
+player_image=pygame.image.load("./Graphics/player.png")
+enemy_image=pygame.image.load("./Graphics/enemy.png")
 
-#Pygame GUI Setup
-manager = pygame_gui.UIManager((WIDTH, HEIGHT))
 
 bullet_rate_ind = 1 #medium difficulty
 diff_list = ['Easy', 'Medium', 'Hard', 'Very Hard']
@@ -80,142 +60,13 @@ bullet_rate_ind = 1 #start difficulty of medium
 slider_value = 6 #start speed
 movement_speed = 5
 
-#GUI Adjustable Game propreties
-
-diff_label = pygame_gui.elements.UITextBox(html_text="<font color='#FFFFFF'>"
-                                            'Difficulty',
-                                            relative_rect=pygame.Rect((3, 0), (152, 35)),
-                                            manager=manager)
-
-lvl_diff=pygame_gui.elements.UIDropDownMenu(options_list= diff_list,
-                                   starting_option='Medium',
-                                   relative_rect=pygame.Rect((3, 35), (152, 50)),
-                                   manager=manager)
-
-speed_label = pygame_gui.elements.UITextBox(html_text="<font color='#FFFFFF'  size=2>"
-                                            "Bullet Speed:"+str(slider_value*5)+ " Km/h",
-                                            relative_rect=pygame.Rect((3, 100), (152, 30)),
-                                            manager=manager)
-
-speed_slider = pygame_gui.elements.UIHorizontalSlider(relative_rect=pygame.Rect((3, 130), (152, 50)),
-                                                      start_value = 6, 
-                                                      value_range = (2,15), 
-                                                      manager=manager)
-
-skin_temp_label = pygame_gui.elements.UITextBox(html_text="<font color='#FFFFFF' size=2>"
-                                            "Skin Temperature: <br>"
-                                            "<font size=3>"
-                                            "      "+str(base_temp)+" &deg;C",
-                                            relative_rect=pygame.Rect((3, 220), (152, 50)),
-                                            manager=manager)
-
-heart_rate_label = pygame_gui.elements.UITextBox(html_text="<font color='#FFFFFF' size=2>"
-                                            "Heart Rate: <br>"
-                                            "<font size=3>"
-                                            "      "+str(base_heart)+" bpm",
-                                            relative_rect=pygame.Rect((3, 280), (152, 55)),
-                                            manager=manager)
-
-movement_label = pygame_gui.elements.UITextBox(html_text="<font color='#FFFFFF' size=2.5>"
-                                            "Movement Speed:<br>"
-                                            "<font size=3>"
-                                            "      "+str(movement_speed*5)+" km/h",
-                                            relative_rect=pygame.Rect((3, 345), (152, 50)),
-                                            manager=manager)
-
-baseline_label = pygame_gui.elements.UITextBox(html_text="<font color='#FFFFFF' size=3>"
-                                            "<strong>Baseline Readings</strong><br>"
-                                            "<font size=2>"
-                                            "Skin Temperature="+str(base_temp)+"<br>"
-                                            "Heart Rate="+str(base_heart)+"bpm",
-                                            relative_rect=pygame.Rect((3, 500), (152, 90)),
-                                            manager=manager)
-
-voltage_label = pygame_gui.elements.UITextBox(html_text="<font color='#FFFFFF' size=5>"
-                                            '<strong> ERM Voltage Input',
-                                            relative_rect=pygame.Rect((950, 0), (225, 40)),
-                                            manager=manager)
-left_gauge_label = pygame_gui.elements.UITextBox(html_text="<font color='#FFFFFF' size=4>"
-                                            ' Left Arm',
-                                            relative_rect=pygame.Rect((1100, 117), (100, 35)),
-                                            manager=manager)
-
-chest_gauge_label = pygame_gui.elements.UITextBox(html_text="<font color='#FFFFFF' size=4>"
-                                            '  Chest',
-                                            relative_rect=pygame.Rect((1100, 293), (95, 35)),
-                                            manager=manager)
-left_gauge_label = pygame_gui.elements.UITextBox(html_text="<font color='#FFFFFF' size=4>"
-                                            ' Right Arm',
-                                            relative_rect=pygame.Rect((1100, 470), (100, 35)),
-                                            manager=manager)
-
-#Hide Scroll Bars
-skin_temp_label.scroll_bar.hide()
-movement_label.scroll_bar.hide()
-
-
-#Create Gauge
-bg_c = (56, 56, 56)
-circle_c = (55, 77, 91)
-
-left_gauge = gauge.Gauge(
-    screen=display,
-    FONT=FONT,
-    x_cord= 1000,
-    y_cord= 135,
-    thickness=20,
-    radius=85,
-    circle_colour=circle_c,
-    glow=False)
-
-chest_gauge = gauge.Gauge(
-    screen=display,
-    FONT=FONT,
-    x_cord= 1000,
-    y_cord= 310,
-    thickness=20,
-    radius=85,
-    circle_colour=circle_c,
-    glow=False)
-
-right_gauge = gauge.Gauge(
-    screen=display,
-    FONT=FONT,
-    x_cord= 1000,
-    y_cord= 485,
-    thickness=20,
-    radius=85,
-    circle_colour=circle_c,
-    glow=False)
-
-# parameters for gauge
-max_value = 100
-
-target_value = numpy.zeros(3)
-present_value = numpy.zeros(3)
-pressed_value = 0
-
-up_inc = 0
-
-up_time = 0.1
-up_frames = up_time * FPS
-
-max_down_time = 0.7
-down_time = numpy.zeros(3)
-down_frames = numpy.tile([1,1,1],1)
-
-inc = numpy.zeros(3)
-
-needle_value = numpy.zeros(3)
-gauge_flag = numpy.array([False, False, False])
-
 #Load Images
-PLAYER_IMAGE = pygame.image.load("player.png").convert()
-SWORD_IMAGE = pygame.image.load("sword.png").convert()
-ENEMY_IMAGE = pygame.image.load("enemy.png").convert()
-HEART_IMAGE = pygame.image.load("heart.png").convert()
-hearti_size = HEART_IMAGE.get_size()
-HEART_IMAGE = pygame.transform.scale(HEART_IMAGE, (int(hearti_size[0]*0.19), int(hearti_size[1]*0.19)))
+PLAYER_IMAGE = pygame.image.load("./Graphics/player.png").convert()
+SWORD_IMAGE = pygame.image.load("./Graphics/sword.png").convert()
+ENEMY_IMAGE = pygame.image.load("./Graphics/enemy.png").convert()
+HEART_IMAGE = pygame.image.load("./Graphics/heart.png").convert()
+heart_size = HEART_IMAGE.get_size()
+HEART_IMAGE = pygame.transform.scale(HEART_IMAGE, (int(heart_size[0]*0.19), int(heart_size[1]*0.19)))
 
 #Other
 DAMAGE_FACTOR = 1
@@ -241,12 +92,12 @@ class Player(pygame.sprite.Sprite):
         self.bigger_img = pygame.transform.scale(self.image, (int(self.size[0]*2), int(self.size[1]*2)))
         display.blit(self.bigger_img,(self.x,self.y))
         self.draw_health_bar()
-    def get_damage(self,amount):
+    def get_damage(self, amount):
         if self.current_health > 0:
             self.current_health -= amount
         if self.current_health <= 0:
             self.current_health = 0
-    def get_health(self,amount):
+    def get_health(self, amount):
         if self.current_health < self.maximum_health:
             self.current_health += amount
         if self.current_health >= self.maximum_health:
@@ -255,58 +106,6 @@ class Player(pygame.sprite.Sprite):
         pygame.draw.rect(display,(255,0,0),(163,0, self.current_health/self.health_ratio, 50))
         pygame.draw.rect(display,(255,255,255),(163,0,self.health_bar_length, 50),4) # white border
 
-stabbing_flag = False
-class Sword(pygame.sprite.Sprite):
-    def __init__(self, x, y, angle=15, stabtime=30):
-        super().__init__()
-        self.x = x
-        self.y = y
-        self.angle = angle
-        self.image = pygame.transform.rotate(SWORD_IMAGE, self.angle)
-        self.orig_image = self.image
-        self.rect = self.image.get_rect(topleft=(self.x, self.y))
-        self.stabtime = stabtime
-        self.stabbing = False
-        self.y_counter = 0
-        self.x_counter = 0
-        if self.stabbing == True:
-            display.blit(self.image,(self.x,self.y))
-    def update(self, x, y):
-        self.rect = self.image.get_rect(topleft=(self.x, self.y))
-        if self.stabbing:
-            display.blit(self.image,(self.x,self.y))
-            if self.stabtime <= 0:
-                self.reset_stab()
-            self.stabtime -= 1
-            if self.stabtime <=10:
-                self.angle+=5
-                self.y_counter+=8
-            if self.stabtime >= 11 and self.stabtime <=20:
-                self.angle+=7
-                self.x_counter-=5
-            else:
-                self.angle+=5
-                self.y_counter-=4
-            self.x = x + self.x_counter
-            self.y = y + self.y_counter
-            self.image = pygame.transform.rotate(self.orig_image, self.angle)       
-    def stab(self):
-        global stabbing_flag
-        
-        self.angle = -65
-        self.image = pygame.transform.rotate(self.orig_image, self.angle)
-        self.stabbing = True
-        stabbing_flag = True
-    def reset_stab(self):
-        global stabbing_flag
-        
-        self.x_counter = 0
-        self.y_counter = 0
-        self.stabtime = 30
-        self.image = self.orig_image
-        self.angle = -65
-        self.stabbing = False
-        stabbing_flag = False
 
 class Enemy:
     def __init__(self, x, y, width, height):
@@ -359,16 +158,6 @@ enemy3_bullets = []
 enemy4_bullets = []
 enemy5_bullets = []
 
-def calculate_player_speed():
-    
-    temp_ratio = abs(((current_heart - base_heart)/base_heart)*5)
-    
-    speed = 5 - (5*temp_ratio)
-    
-    if speed < 0:
-        speed = 0
-    
-    return speed
 
 def check_keys():
     global atot_index, movement_speed
@@ -396,43 +185,6 @@ def check_keys():
             sword.stab()
             sword.x = player.x+20
             sword.y = player.y+5
-            
-def needle_algo(gauge_index):
-    global present_value, target_value, inc 
-    
-    heart_rate_ratio = (current_heart - base_heart)/base_heart
-    
-    pressed_value = (((slider_value-2)/13)*75) + (heart_rate_ratio*25) #75% is based on bullet speed, other 25% is based on heart rate
-        
-    target_value[gauge_index] = present_value[gauge_index] + pressed_value
-    inc[gauge_index] = pressed_value / up_frames
-
-
-def update_needle():
-    global down_time, down_frames, inc
-    
-    for index in range(3):
-        if present_value[index] >= target_value[index] and present_value[index] != 0:
-            test = (present_value[index] / max_value) * max_down_time
-            down_time[index] = float(test)
-            down_frames[index] = down_time[index] * FPS
-            inc[index] = - (present_value[index] / down_frames[index])
-    
-        present_value[index] += inc[index]
-    
-        if present_value[index] <= 0 and inc[index] < 0:
-            present_value[index] = 0
-            inc[index] = 0
-            target_value[index] = 0
-    
-        needle_value[index] = present_value[index]
-        
-        if needle_value[index] >= 100:
-            needle_value[index] = 100
-
-    left_gauge.draw(percent=needle_value[0])
-    chest_gauge.draw(percent=needle_value[1])
-    right_gauge.draw(percent=needle_value[2])
    
 def check_for_collisions():
     global stabbing_flag, slider_value
@@ -445,8 +197,6 @@ def check_for_collisions():
         if bullet.player_collide(player):
             enemy1_bullets.remove(bullet)
             player.get_damage(slider_value*DAMAGE_FACTOR) 
-            gauge_index = random.randint(0,2)
-            needle_algo(gauge_index)
         
         bullet.draw(display)
         
@@ -458,8 +208,6 @@ def check_for_collisions():
         if bullet.player_collide(player):
             enemy2_bullets.remove(bullet)
             player.get_damage(slider_value*DAMAGE_FACTOR)
-            gauge_index = random.randint(0,2)
-            needle_algo(gauge_index)
 
         bullet.draw(display)
         
@@ -470,9 +218,7 @@ def check_for_collisions():
         
         if bullet.player_collide(player):
             enemy3_bullets.remove(bullet)
-            player.get_damage(slider_value*DAMAGE_FACTOR) 
-            gauge_index = random.randint(0,2)
-            needle_algo(gauge_index)
+            player.get_damage(slider_value*DAMAGE_FACTOR)
         
         bullet.draw(display)
         
@@ -484,9 +230,7 @@ def check_for_collisions():
        if bullet.player_collide(player):
            enemy4_bullets.remove(bullet)
            player.get_damage(slider_value*DAMAGE_FACTOR)
-           gauge_index = random.randint(0,2)
-           needle_algo(gauge_index)
-           
+
        bullet.draw(display)
         
     for bullet in enemy5_bullets:
@@ -497,8 +241,6 @@ def check_for_collisions():
         if bullet.player_collide(player):
             enemy5_bullets.remove(bullet)
             player.get_damage(slider_value*DAMAGE_FACTOR)
-            gauge_index = random.randint(0,2)
-            needle_algo(gauge_index)
         
         bullet.draw(display)
 
@@ -511,8 +253,6 @@ def draw():
     enemy3.draw(display)
     enemy4.draw(display)
     enemy5.draw(display)
-    
-    update_needle()
     
     check_for_collisions()
     
