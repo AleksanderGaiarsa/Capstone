@@ -58,7 +58,7 @@ class Bullets(pygame.sprite.Sprite):
                 return True
 
 class Sword(pygame.sprite.Sprite):
-    def __init__(self, display, x, y, sword_png, angle=15, stabtime=30):
+    def __init__(self, x, y, sword_png, angle=15, stabtime=30):
         super().__init__()
 
         self.activate = False
@@ -75,9 +75,6 @@ class Sword(pygame.sprite.Sprite):
         self.swinging = False
         self.y_counter = 0
         self.x_counter = 0
-
-        if self.swinging == True:
-            display.blit(self.image,(self.x, self.y))
 
     def update(self, display, x, y):
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
@@ -142,10 +139,9 @@ class Bullets(pygame.sprite.Sprite):
                 return True
         
 class Health_Bar():
-    def __init__(self, max_health, heart_png):
+    def __init__(self, max_health):
         self.health_bar_length = 900 - 215 # (in pixel) about half the size of the screen
         self.health_ratio = max_health /self.health_bar_length
-        self.heart_image = heart_png
 
     def draw(self, display, health):
         pygame.draw.rect(display,(255,0,0),(163,0, health/self.health_ratio, 50))
@@ -161,7 +157,7 @@ class Player(Agent):
         self.health_bar = Health_Bar(self.maximum_health)
 
         #Sword
-        self.sword = Sword(self.x, self.y, png_image="./Graphics/sword.png")
+        self.sword = Sword(self.x, self.y, sword_png="./Graphics/sword.png")
 
     def damage(self, amount):
         if self.current_health > 0:

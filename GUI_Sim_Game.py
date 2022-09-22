@@ -58,12 +58,6 @@ bullet_rate_ind = 1 #start difficulty of medium
 slider_value = 6 #start speed
 movement_speed = 5
 
-#Load Images
-SWORD_IMAGE = pygame.image.load("./Graphics/sword.png").convert()
-HEART_IMAGE = pygame.image.load("./Graphics/heart.png").convert()
-heart_size = HEART_IMAGE.get_size()
-HEART_IMAGE = pygame.transform.scale(HEART_IMAGE, (int(heart_size[0]*0.19), int(heart_size[1]*0.19)))
-
 #Other
 DAMAGE_FACTOR = 1
 
@@ -289,6 +283,7 @@ class Shooting_Game():
                         )
         print(self.player)
         print(self.enemy)
+        print("test")
 
 def main_pygame():
     global deltat_s, run, slider_value
