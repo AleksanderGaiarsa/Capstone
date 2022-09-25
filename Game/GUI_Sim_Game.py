@@ -2,10 +2,6 @@ import pygame
 import random
 import pygame_gui
 import modules.game_objects as g_obj
-
-#Pygame Setup
-pygame.init()
-FPS = 60
         
 #Base Readings
 base_heart = 0;
@@ -27,25 +23,9 @@ prev_temp_ratio = 0
 temp_ratio = 0
 
 
-
-timer1 = 1000
-deltat = 0
-deltat_s = 0
-
 WIDTH, HEIGHT = 1225, 600
 FONT = pygame.font.SysFont('Franklin Gothic Heavy', 33)
 font = pygame.font.Font('freesansbold.ttf', 20)
-
-display = pygame.display.set_mode((WIDTH, HEIGHT))
-background = pygame.Surface((WIDTH, HEIGHT))
-background.fill((200,104,65), (163, 0, display.get_width(), display.get_height())) #orange starting at 163
-background.fill((0,0,0),(160,0, 3, display.get_height())) #black line at 160-163 pixels
-background.fill((255,255,255), (0, 0, 160, display.get_height())) #white background
-background.fill((0,0,0),(900,0, 3, display.get_height())) #black line at 900-903 pixels
-background.fill((202,228,241), (903, 0, 500, display.get_height())) #teal background
-
-pygame.display.set_caption("Game Simulation")
-clock = pygame.time.Clock()
 
 player_image=pygame.image.load("./Graphics/player.png")
 enemy_image=pygame.image.load("./Graphics/enemy.png")
@@ -166,27 +146,6 @@ def draw():
     check_for_collisions()
     
     
-        
-def timer():
-    global timer1, deltat, bullet_rate_ind
-    
-    timer1 -= deltat
-    
-    if timer1 <= 0:  # Ready to fire.
-        counter = random.randint(1,5)
-        if counter == 1:
-            enemy1_bullets.append(Bullets(enemy1.x, enemy1.y, player.x, player.y))
-        if counter == 2:
-            enemy2_bullets.append(Bullets(enemy2.x, enemy2.y, player.x, player.y))
-        if counter == 3:
-            enemy3_bullets.append(Bullets(enemy3.x, enemy3.y, player.x, player.y))
-        if counter == 4:
-            enemy4_bullets.append(Bullets(enemy4.x, enemy4.y, player.x, player.y))
-        if counter == 5:
-            enemy5_bullets.append(Bullets(enemy5.x, enemy5.y, player.x, player.y))
-        timer1 = bullet_rate[bullet_rate_ind]  # Reset the timer.
-        
-    deltat = clock.tick(FPS) #milliseconds
     
 
 def pygame_event_check():
@@ -273,7 +232,18 @@ class Shooting_Game():
     def __init__(self):
         #Pygame Setup
         self.pygame = pygame.init()
+        pygame.display.set_caption("Game Simulation")
         self.fps = 60
+
+        self.display = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.background = pygame.Surface((WIDTH, HEIGHT))
+        self.background.fill((200,104,65), (163, 0, self.display.get_width(), self.display.get_height())) #orange starting at 163
+        self.background.fill((0,0,0),(160,0, 3, self.display.get_height())) #black line at 160-163 pixels
+        self.background.fill((255,255,255), (0, 0, 160, self.display.get_height())) #white background
+
+        self.clock = pygame.time.Clock()
+        self.timer1 = 1000
+        self.deltat = 0
 
         self.player = g_obj.Player(500,350,32,32, size=2, png_image="./Graphics/player.png")
         self.enemy = (  g_obj.Enemy(200,150,32,32, size=1.3, png_image="./Graphics/enemy.png"),
@@ -281,18 +251,38 @@ class Shooting_Game():
                         g_obj.Enemy(800,60,16,16, size=1.3, png_image="./Graphics/enemy.png"),
                         g_obj.Enemy(200,150,32,32, size=1.3, png_image="./Graphics/enemy.png"),
                         )
-        print(self.player)
-        print(self.enemy)
-        print("test")
-
-def main_pygame():
-    global deltat_s, run, slider_value
-    #Setup
-    run = True
-    
-    while run:
         
-        deltat_s = deltat/1000 #seconds
+        self.run = True
+        self.play()
+
+def timer():
+    global timer1, deltat, bullet_rate_ind
+    
+    timer1 -= deltat
+    
+    if timer1 <= 0:  # Ready to fire.
+        counter = random.randint(1,5)
+        if counter == 1:
+            enemy1_bullets.append(Bullets(enemy1.x, enemy1.y, player.x, player.y))
+        if counter == 2:
+            enemy2_bullets.append(Bullets(enemy2.x, enemy2.y, player.x, player.y))
+        if counter == 3:
+            enemy3_bullets.append(Bullets(enemy3.x, enemy3.y, player.x, player.y))
+        if counter == 4:
+            enemy4_bullets.append(Bullets(enemy4.x, enemy4.y, player.x, player.y))
+        if counter == 5:
+            enemy5_bullets.append(Bullets(enemy5.x, enemy5.y, player.x, player.y))
+        timer1 = bullet_rate[bullet_rate_ind]  # Reset the timer.
+        
+    deltat = clock.tick(self.fps) #milliseconds
+
+def play(self):
+    global slider_value
+    #Setup
+    
+    while(self.run):
+        
+        self.deltat_s = self.deltat/1000 #seconds
         
         check_keys()
         
