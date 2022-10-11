@@ -30,7 +30,6 @@ class Sword(pygame.sprite.Sprite):
     def __init__(self, x, y, sword_png, angle=15, stabtime=30):
         super().__init__()
 
-        self.activate = False
         self.x = x
         self.y = y
         self.angle = angle
@@ -69,11 +68,13 @@ class Sword(pygame.sprite.Sprite):
             self.y = y + self.y_counter
             self.image = pygame.transform.rotate(self.reset_image, self.angle) 
 
-    def swing(self):
-        self.angle = -65
-        self.image = pygame.transform.rotate(self.reset_image, self.angle)
-        self.swinging = True
-        self.activate = True
+    def swing(self, x, y):
+        if not self.swinging:
+            self.angle = -65
+            self.image = pygame.transform.rotate(self.reset_image, self.angle)
+            self.swinging = True
+            self.x = x
+            self.y = y
 
     def reset_swing(self):
         self.x_counter = 0
@@ -82,7 +83,6 @@ class Sword(pygame.sprite.Sprite):
         self.image = self.reset_image
         self.angle = -65
         self.swinging = False
-        self.activate = False
 
 class Bullets(pygame.sprite.Sprite):
         def __init__(self, display, x, y, player_x, player_y, speed):
@@ -92,7 +92,7 @@ class Bullets(pygame.sprite.Sprite):
             self.angle = math.atan2(y-player_y, x-player_x)
             self.x_vel = math.cos(self.angle) * self.speed
             self.y_vel = math.sin(self.angle) * self.speed
-            self.rect = pygame.draw.circle(display, (0,0,0), (self.x, self.y), 5)
+            self.rect = pygame.draw.circle(display, (0,0,0), (self.x, self.y), 7)
             self.reverse = 1
 
         def draw(self, display):
@@ -102,7 +102,7 @@ class Bullets(pygame.sprite.Sprite):
             if (self.x < display.get_width()/6):
                 del self
             else:
-                self.rect = pygame.draw.circle(display, (0,0,0), (self.x, self.y), 5)
+                self.rect = pygame.draw.circle(display, (0,0,0), (self.x, self.y), 7)
 
         def check_sword_collide(self, test_sprite):
             if pygame.sprite.collide_rect(self, test_sprite):
@@ -132,7 +132,7 @@ class Player(Agent):
         self.health_bar = Health_Bar(self.maximum_health)
 
         #Sword
-        self.sword = Sword(self.x, self.y, sword_png="./Game/Graphics/sword.png")
+        self.sword = Sword(self.x, self.y, sword_png="./Game/assets/sword.png")
 
     def damage(self, amount):
         if self.current_health > 0:
