@@ -23,7 +23,7 @@ class Agent(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (int(img_size[0]*self.size), int(img_size[1]*self.size)))
         
     def draw(self, display):
-        self.rect = self.image.get_rect(topleft=(self.x, self.y))
+        self.rect = self.image.get_rect(center=(self.x, self.y))
         display.blit(self.image,(self.x,self.y))
 
 class Sword(pygame.sprite.Sprite):
@@ -83,35 +83,6 @@ class Sword(pygame.sprite.Sprite):
         self.image = self.reset_image
         self.angle = -65
         self.swinging = False
-
-class Bullets(pygame.sprite.Sprite):
-        def __init__(self, display, x, y, player_x, player_y, speed):
-            self.x = x
-            self.y = y
-            self.speed = speed
-            self.angle = math.atan2(y-player_y, x-player_x)
-            self.x_vel = math.cos(self.angle) * self.speed
-            self.y_vel = math.sin(self.angle) * self.speed
-            self.rect = pygame.draw.circle(display, (0,0,0), (self.x, self.y), 7)
-            self.reverse = 1
-
-        def draw(self, display):
-            self.x -= int(self.x_vel) * self.reverse
-            self.y -= int(self.y_vel) * self.reverse
-            #TODO
-            if (self.x < display.get_width()/6):
-                del self
-            else:
-                self.rect = pygame.draw.circle(display, (0,0,0), (self.x, self.y), 7)
-
-        def check_sword_collide(self, test_sprite):
-            if pygame.sprite.collide_rect(self, test_sprite):
-                self.reverse = (-self.reverse)
-                return True
-
-        def check_player_collide(self, test_sprite):
-            if pygame.sprite.collide_rect(self, test_sprite):
-                return True
         
 class Health_Bar():
     def __init__(self, max_health):
@@ -145,6 +116,39 @@ class Player(Agent):
             self.current_health += amount
         if self.current_health >= self.maximum_health:
             self.current_health = self.maximum_health
+
+class Bullets(pygame.sprite.Sprite):
+        def __init__(self, display, x, y, player_x, player_y, speed):
+            self.x = x
+            self.y = y
+            self.speed = speed
+            self.angle = math.atan2(y-player_y, x-player_x)
+            self.x_vel = math.cos(self.angle) * self.speed
+            self.y_vel = math.sin(self.angle) * self.speed
+            self.rect = pygame.draw.circle(display, (0,0,0), (self.x, self.y), 7)
+            self.reverse = 1
+
+        def draw(self, display):
+            self.x -= int(self.x_vel) * self.reverse
+            self.y -= int(self.y_vel) * self.reverse
+            #TODO
+            if (self.x < display.get_width()/6):
+                del self
+            else:
+                self.rect = pygame.draw.circle(display, (0,0,0), (self.x, self.y), 7)
+
+        def check_sword_collide(self, test_sprite):
+            if pygame.sprite.collide_rect(self, test_sprite):
+                self.reverse = (-self.reverse)
+                return True
+
+        def check_player_collide(self, test_sprite:Player):
+            if pygame.sprite.collide_rect(self, test_sprite):
+                if self. x >= test_sprite.x:
+                    print('hit right')
+                else:
+                    print('hit left')
+                return True
     
 class Enemy(Agent):
     def __init__(self, start_x:int, start_y:int, size:int, png_image:str):

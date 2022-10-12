@@ -6,6 +6,7 @@ import sys
 
 def main():
     pygame.init()
+
     run = True
 
     while(run):
@@ -13,13 +14,22 @@ def main():
         
         if not menu.run:
             run = False
-
+            break
+        
         game = main_game.Shooting_Game(menu.bullet_rate_ind)
         leaderboard = main_leader.Leaderboard_Screen(menu.player_name, game.score)
-    
-    pygame.display.quit()
-    pygame.quit()
-    sys.exit()
+
+        del menu, game, leaderboard
 
 if __name__ == '__main__':
     main()
+
+try:
+    pygame.display.quit()
+    pygame.quit()
+    sys.exit(0)
+
+except Exception:
+    import traceback
+    traceback.print_exec()
+print("end")

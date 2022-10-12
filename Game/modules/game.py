@@ -7,7 +7,7 @@ import modules.game_algos as algo
 import modules.calibration as calib
 import modules.joycon as joycon
 
-DAMAGE_FACTOR = 3
+DAMAGE_FACTOR = 30
 
 class Shooting_Game():
     def __init__(self, bullet_rate_idx):
@@ -245,5 +245,9 @@ class Shooting_Game():
             self.screen_update()
             
             self.pygame_event_check()
+        
+        self.controller.run = False
+        pygame.display.quit()
+        
 
     

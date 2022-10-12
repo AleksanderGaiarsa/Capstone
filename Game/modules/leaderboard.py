@@ -182,4 +182,5 @@ class Leaderboard_Screen:
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         if self.main_menu_button.checkForInput(self.leader_mouse_pos):
+                            pygame.display.quit()
                             return
