@@ -9,6 +9,8 @@ Created on Sun Sep 18 17:15:59 2022
 import pygame
 import math
 import os
+import threading
+import modules.game_algos as algos
 
 class Agent(pygame.sprite.Sprite):
     def __init__(self, start_x:int, start_y:int, size:int, png_image:str):
@@ -142,12 +144,20 @@ class Bullets(pygame.sprite.Sprite):
                 self.reverse = (-self.reverse)
                 return True
 
-        def check_player_collide(self, test_sprite:Player):
+        def check_player_collide(self, test_sprite:Player, q1):
             if pygame.sprite.collide_rect(self, test_sprite):
                 if self. x >= test_sprite.x:
+                    q1.put({'Command':'write', 'Service':'TENS', 'Characteristic':'Right', 'Value':1})
+                    q1.put({'Command':'write', 'Service':'ERM', 'Characteristic':'Right PWM', 'Value':algos.erm_pwm})
+                    q1.put({'Command':'write', 'Service':'ERM', 'Characteristic':'Right Time', 'Value':algos.erm_decay_time})
+                    threading.Timer(algos.tens_time, q1.put({'Command':'write', 'Service':'TENS', 'Characteristic':'Right', 'Value':0}))
                     print('hit right')
                 else:
                     print('hit left')
+                    q1.put({'Command':'write', 'Service':'TENS', 'Characteristic':'Left', 'Value':1})
+                    q1.put({'Command':'write', 'Service':'ERM', 'Characteristic':'Left PWM', 'Value':algos.erm_pwm})
+                    q1.put({'Command':'write', 'Service':'ERM', 'Characteristic':'Left Time', 'Value':algos.erm_decay_time})
+                    threading.Timer(algos.tens_time, q1.put({'Command':'write', 'Service':'TENS', 'Characteristic':'Left', 'Value':0}))
                 return True
     
 class Enemy(Agent):

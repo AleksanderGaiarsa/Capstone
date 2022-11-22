@@ -6,14 +6,21 @@ import modules.gui as gui
 import modules.game_algos as algo
 import modules.calibration as calib
 import modules.joycon as joycon
+import queue
 
 DAMAGE_FACTOR = 30
 
 class Shooting_Game():
-    def __init__(self, bullet_rate_idx):
+    def __init__(self, bullet_rate_idx, q_to_ble, q_from_ble):
         
         self.calibration = calib.Calibration()
+
+        pygame.mixer.music.load('./Game/assets/Stone_Cold.mp3',)
+        pygame.mixer.music.play(100, fade_ms=1000)
+
         self.bullet_rate_idx = bullet_rate_idx
+        self.q_to_ble = q_to_ble
+        self.q_from_ble = q_from_ble
 
         pygame.display.set_caption("Game Simulation")
         self.display = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -60,7 +67,6 @@ class Shooting_Game():
         return pygame.font.Font("./Game/assets/font.ttf", size)
 
     def timer(self):
-        
         self.timer1 -= self.deltat
         
         if self.timer1 <= 0:  # Ready to fire.
@@ -175,7 +181,7 @@ class Shooting_Game():
                 if self.player.sword.swinging:
                     if bullet.check_sword_collide(self.player.sword):
                         self.player.sword.swinging  = False
-                elif bullet.check_player_collide(self.player):
+                elif bullet.check_player_collide(self.player, self.q_to_ble):
                     enemy.bullets.remove(bullet)
                     self.player.damage(self.gui.slider_value*DAMAGE_FACTOR)
                     if self.player.current_health <= 0:

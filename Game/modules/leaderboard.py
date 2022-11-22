@@ -123,6 +123,9 @@ class Leaderboard(pygame.font.Font):
 class Leaderboard_Screen:
     def __init__(self, player_name, score):
 
+        pygame.mixer.music.load('./Game/assets/Dance_of_the_Decorous.mp3')
+        pygame.mixer.music.play(100)
+
         self.score = score
 
         self.display = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)

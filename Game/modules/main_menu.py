@@ -3,7 +3,6 @@ import pygame, sys
 import pygame_gui
 
 pygame.font.init()
-
 FONT = pygame.font.Font("./Game/assets/font.ttf", 26)
 COLOR_INACTIVE = pygame.Color('lightskyblue3')
 COLOR_ACTIVE = pygame.Color('dodgerblue2')
@@ -129,6 +128,11 @@ class InputBox:
 
 class menu():
     def __init__(self):
+        
+        if not pygame.mixer.music.get_busy():
+            pygame.mixer.music.load('./Game/assets/Dance_of_the_Decorous.mp3')
+            pygame.mixer.music.play(100, start=10)
+
         self.display = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
         self.width, self.height = pygame.display.get_surface().get_size()
         pygame.display.set_caption("Menu")
@@ -208,7 +212,7 @@ class menu():
         self.options_button = Menu_Button(image=pygame.image.load("./Game/assets/Diff_Rect.png"), 
                                         bg_size=(1.4,1),
                                         pos=(self.width/2, (self.button_height*2)+50), 
-                                        text_input="DIFFICULTY",
+                                        text_input="OPTIONS",
                                         font=self.get_font(75), base_color="#d7fcd4",
                                         hovering_color="White")
 
@@ -246,6 +250,7 @@ class menu():
                     print('mouse clicked in main menu')
                     if self.play_button.checkForInput(self.menu_mouse_pos):
                         if self.play():
+                            pygame.mixer.music.fadeout(500)
                             return
                     elif self.options_button.checkForInput(self.menu_mouse_pos):
                         self.options()

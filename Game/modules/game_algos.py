@@ -9,3 +9,19 @@ def calculate_player_speed(current_heart, base_heart):
         speed = 0
     
     return speed
+
+def tens_time():
+
+    time = 1
+
+    return time #seconds
+
+def erm_pwm():
+    pwm = 500
+
+    return pwm
+
+def erm_decay_time():
+    time = 1000
+
+    return time #milliseconds

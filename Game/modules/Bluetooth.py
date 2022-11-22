@@ -4,7 +4,6 @@ import os
 
 
 class BLE():
-
     def __init__(self, mac_add):
         self.mac = mac_add
 
