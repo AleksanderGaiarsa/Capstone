@@ -1,7 +1,7 @@
 #GUI Adjustable Game propreties
 import pygame
 import pygame_gui
-import modules.calibration as calib
+import other_files.calibration as calib
 
 
 class GUI():

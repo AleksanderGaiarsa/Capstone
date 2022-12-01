@@ -1,11 +1,11 @@
 import pygame
 import random
 import pygame_gui
-import modules.game_objects as g_obj
-import modules.gui as gui
-import modules.game_algos as algo
-import modules.calibration as calib
-import modules.joycon as joycon
+import other_files.game_objects as g_obj
+import other_files.gui as gui
+import other_files.game_algos as algo
+import other_files.calibration as calib
+import other_files.joycon as joycon
 
 DAMAGE_FACTOR = 30
 

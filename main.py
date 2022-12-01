@@ -1,6 +1,6 @@
-import modules.main_menu as main_menu
-import modules.leaderboard as main_leader
-import modules.game as main_game
+import other_files.main_menu as main_menu
+import other_files.leaderboard as main_leader
+import other_files.game as main_game
 import pygame
 import sys
 
