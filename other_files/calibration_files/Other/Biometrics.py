@@ -22,7 +22,7 @@ dtypes1 = {'Time': 'category',
 dtypes2 = {'Time': 'category',
            'Heart Rate': 'int64'}
 
-df1 = pd.read_csv('Data2.csv',
+df1 = pd.read_csv('Data0.csv',
     dtype = dtypes1,
     usecols = list(dtypes1))
 
@@ -33,7 +33,7 @@ df1 = df1.dropna() # solution to add this row? check if valid
 print(df1)
 ##### SOME ERROR HERE, WHY NA STILL PRESENT, time column is weird
 
-df2 = pd.read_csv('HR2.csv',
+df2 = pd.read_csv('HR0.csv',
     dtype = dtypes2,
     usecols = list(dtypes2))
 

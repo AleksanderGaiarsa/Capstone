@@ -55,7 +55,6 @@ class Calibration():
             self.df1[profile] = self.df1[profile].dropna(thresh=3)
             self.df1[profile] = self.df1[profile].groupby(['Time'], as_index=False).mean('Heart Rate','GSR')
             self.df1[profile] = self.df1[profile].dropna()
-            #print(df1[profile])
             
             self.df2[profile] = pd.read_csv('HR' + str(profile) + '.csv',
             dtype = self.dtypes2,
@@ -73,33 +72,41 @@ class Calibration():
             self.hr_rest[profile]= self.hr_rest["Heart Rate"].mean()
             print('The baseline heart rate is ' + str(round(self.hr_rest[profile],2)))
             
-            # Random Forests
+            # Get limits of GSR for each profile (useful in picking which regression model to use later)
+            # Later, during game, if GSR falls outside range of profile, use linear regression to extrapolate
+            self.min_gsr = str(round(min(self.df[profile]['GSR']),2))
+            self.max_gsr = str(round(max(self.df[profile]['GSR']),2))
+            
+            # Setup
             self.X[profile] = self.df[['GSR','Heart Rate']].values
             self.y[profile] = self.df['Bullet Speed'].values
             X_train, X_test, y_train, y_test = None # resets training/testing set
             X_train, X_test, y_train, y_test = train_test_split(self.X[profile],self.y[profile], random_state=101)
-            self.rf = RandomForestClassifier()
-            self.rf = None # VERFIT THIS
-            self.rf.fit(X_train, y_train)
-            self.rf.score(X_test, y_test) # calculate accuracy
-            print("Accuracy with random forests: " + str(round(self.rf.score(X_test, y_test),2)))
+            
+            # Linear Regression
+            self.lr[profile] = LinearRegression()
+            self.lr[profile] = None
+            self.lr[profile].fit(X_train, y_train)     # Save this
+            
+            # Random Forests
+            self.rf[profile] = RandomForestClassifier()
+            self.rf[profile] = None # VERIFY THIS
+            self.rf[profile].fit(X_train, y_train)
+            self.rf[profile].score(X_test, y_test) # calculate accuracy
 
             # Tuning a random forest
             param_grid = {
-                'n_estimators': range(15), # Try different values
+                'n_estimators': range(15), 
             }
-            gs = GridSearchCV(self.rf, param_grid, cv = 5) # cv=5 so 5-fold cross validation
+            gs = GridSearchCV(self.rf[profile], param_grid, cv = 5) # cv=5 so 5-fold cross validation
             gs.fit(self.X[profile],self.y[profile])
             print("Best parameters:", gs.best_params_) # number of estimators/trees
             
             self.best_estimator = {}
             self.best_estimator[profile] = gs.best_params_.get('n_estimators')
             self.rf[profile] = RandomForestClassifier(n_estimators = self.best_estimator[profile]) # put best one here
-            self.rf[profile].fit(X_train, y_train)
-            self.hr_rest[profile] = self.df[profile].loc[(self.df[profile]['Bullet Speed'] == 10)]
-            self.hr_rest[profile] = self.hr_rest[profile]["Heart Rate"].mean()
-            #print('The resting heart rate of profile #' + str(profile) + ' is ' + str(round(hr_rest[profile],2)))    
-    
+            self.rf[profile].fit(X_train, y_train)     # Save this
+            
     def calib_data(self):  
          df_calib = pd.read_csv('Calibration.csv',
              dtype = self.dtypes1,
@@ -114,28 +121,41 @@ class Calibration():
          print('The baseline GSR is ' + str(round(self.gsr_rest,2)))
          
          # Compare with test data
-         
+    
          X_test = df_calib[['GSR']].values
-         y_test = df_calib['Bullet Speed'].values
+         y_test_rf = df_calib['Bullet Speed'].values
+         y_test_lr = df_calib['Heart Rate'].values
          
          score = {}
-         self.rf_game = {}
+         self.rf_game = {}     # for stress levels and bullet speed
+         self.lr_game_exception = {} # for stress levels and bullet speed when gsr outside profile range
+         self.lr_game = {}     # for heart rate
          for profile in self.profiles:
-             self.rf_game[profile] = RandomForestClassifier(n_estimator = self.best_estimator[profile]) # MAKE SPECIFIC
-             #lr = LinearRegression()
+             self.rf_game[profile] = RandomForestClassifier(n_estimator = self.best_estimator[profile])
              X_train = self.df[profile][['GSR']].values
-             y_train = self.df[profile]['Bullet Speed'].values
-             self.rf_game[profile].fit(X_train, y_train)
-             score[profile] = str(round(self.rf_game[profile].score(X_test, y_test),2)) # calculate accuracy
-             print("Accuracy with random forests for profile #" + str(profile) + ": " + score[profile])
+             y_train_rf = self.df[profile]['Bullet Speed'].values
+             self.rf_game[profile].fit(X_train, y_train_rf)
+             score[profile] = str(round(self.rf_game[profile].score(X_test, y_test_rf),2)) # calculate accuracy bullet speed
+             print("Accuracy bullet speed with random forests for profile #" + str(profile) + ": " + score[profile])
+             
          self.best_profile_index = max(score, key=score.get)
          X_train = self.df[self.best_profile_index][['GSR']].values
-         y_train = self.df[self.best_profile_index]['Bullet Speed'].values
+         y_train_rf = self.df[self.best_profile_index]['Bullet Speed'].values
          print("The best profile is profile #" + str(self.best_profile_index) + " with accuracy of " + score[self.best_profile_index])
-         self.rf_game.fit(X_train, y_train)
+         self.rf_game.fit(X_train, y_train_rf)    # SAVE THIS
+        
+         # Linear Regression for stress levels and bullet speed when gsr outside profile range
+         y_train_lr_exception = self.df[self.best_profile_index][['Bullet Speed']].values
+         self.lr_game_exception.fit(X_train, y_train_lr_exception)
+         
+         # Linear Regression for HR
+         y_train_lr = self.df[self.best_profile_index][['Heart Rate']].values
+         self.lr_game.fit(X_train, y_train_lr)      # SAVE THIS
          
          # Inherit baseline heart rate of best profile
          print("The baseline heart rate is " + self.hr_rest[self.best_profile_index])
+         
+         
 
          
         
