@@ -2,6 +2,7 @@ import modules.main_menu as main_menu
 import modules.leaderboard as main_leader
 import modules.game as main_game
 import modules.ble as ble
+import modules.calibration as calib
 import pygame
 import sys
 import threading
@@ -24,18 +25,25 @@ def main():
     loop = asyncio.get_event_loop()
     ble_thread = threading.Thread(target=thread_func, args=(q_to_ble, q_from_ble, loop)).start()
 
+    calibration = calib.Calibration()
+    calibration.load_profiles()
+
     run = True
 
     while(run):
+        
         menu = main_menu.menu()
         
         if not menu.run:
             run = False
             break
         
-        game = main_game.Shooting_Game(menu.bullet_rate_ind, q_to_ble, q_from_ble)
+        game = main_game.Shooting_Game(menu.bullet_rate_ind, q_to_ble, q_from_ble, calibration, menu.calibration_flag)
         
-        leaderboard = main_leader.Leaderboard_Screen(menu.player_name, game.score)
+        if not game.calib_flag:
+            leaderboard = main_leader.Leaderboard_Screen(menu.player_name, game.score)
+        else:
+            leaderboard = None
 
         del menu, game, leaderboard
         

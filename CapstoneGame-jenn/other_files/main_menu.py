@@ -1,10 +1,9 @@
 from curses import KEY_DOWN
 import pygame, sys
 import pygame_gui
-import modules.game as game
-import queue
 
 pygame.font.init()
+
 FONT = pygame.font.Font("./Game/assets/font.ttf", 26)
 COLOR_INACTIVE = pygame.Color('lightskyblue3')
 COLOR_ACTIVE = pygame.Color('dodgerblue2')
@@ -130,11 +129,6 @@ class InputBox:
 
 class menu():
     def __init__(self):
-        
-        if not pygame.mixer.music.get_busy():
-            pygame.mixer.music.load('./Game/assets/Dance_of_the_Decorous.mp3')
-            pygame.mixer.music.play(100, start=10)
-
         self.display = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
         self.width, self.height = pygame.display.get_surface().get_size()
         pygame.display.set_caption("Menu")
@@ -144,8 +138,6 @@ class menu():
 
         self.diff_list = ['Easy', 'Medium', 'Hard', 'Very Hard']
         self.bullet_rate_ind = 1
-
-        self.calibration_flag = False
 
         self.manager = pygame_gui.UIManager((self.width, self.height))
         self.manager.add_font_paths(font_name = 'menu_font', regular_path="./Game/assets/font.ttf")
@@ -161,32 +153,23 @@ class menu():
         self.lvl_diff=pygame_gui.elements.UIDropDownMenu(options_list= self.diff_list,
                                         starting_option='Medium',
                                         anchors={'centerx': 'centerx','centery': 'centery'},
-                                        relative_rect=pygame.Rect((0, -250), (300, 100)),
+                                        relative_rect=pygame.Rect((0, 0), (300, 100)),
                                         manager=self.manager)
 
-        self.calib_butt = Menu_Button (image=None, bg_size=(1,1),
-                                pos=(self.width/2, 450), 
-                                text_input="Calibration", 
-                                font=self.get_font(50), 
-                                base_color="#d7fcd4", 
-                                hovering_color="White")
-        
         self._diff_back = Menu_Button(image=None, bg_size=(1,1),
-                                pos=(self.width/2, 750), 
+                                pos=(self.width/2, 600), 
                                 text_input="BACK", 
-                                font=self.get_font(50), 
+                                font=self.get_font(75), 
                                 base_color="#d7fcd4", 
                                 hovering_color="White")
 
         while True:
             self.delta_t = self.clock.tick(60)/1000.0
 
-            self.opt_mouse_pos = pygame.mouse.get_pos()
+            self.diff_mouse_pos = pygame.mouse.get_pos()
 
-            self._diff_back.changeColor(self.opt_mouse_pos)
+            self._diff_back.changeColor(self.diff_mouse_pos)
             self._diff_back.update(self.display)
-            self.calib_butt.changeColor(self.opt_mouse_pos)
-            self.calib_butt.update(self.display)
 
             pygame.display.update()
             self.display.blit(self.bg, (0, 0))
@@ -198,13 +181,9 @@ class menu():
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if self._diff_back.checkForInput(self.opt_mouse_pos):
+                    if self._diff_back.checkForInput(self.diff_mouse_pos):
                         self.lvl_diff.kill()
                         return
-                    elif self.calib_butt.checkForInput(self.opt_mouse_pos):
-                        self.calibration_flag = True
-                        return
-                        
                 elif event.type == pygame_gui.UI_DROP_DOWN_MENU_CHANGED:
                     if event.ui_element == self.lvl_diff:
                         self.bullet_rate_ind = self.diff_list.index(event.text)
@@ -229,7 +208,7 @@ class menu():
         self.options_button = Menu_Button(image=pygame.image.load("./Game/assets/Diff_Rect.png"), 
                                         bg_size=(1.4,1),
                                         pos=(self.width/2, (self.button_height*2)+50), 
-                                        text_input="OPTIONS",
+                                        text_input="DIFFICULTY",
                                         font=self.get_font(75), base_color="#d7fcd4",
                                         hovering_color="White")
 
@@ -267,13 +246,9 @@ class menu():
                     print('mouse clicked in main menu')
                     if self.play_button.checkForInput(self.menu_mouse_pos):
                         if self.play():
-                            pygame.mixer.music.fadeout(500)
                             return
                     elif self.options_button.checkForInput(self.menu_mouse_pos):
                         self.options()
-                        if self.calibration_flag:
-                            pygame.mixer.music.fadeout(500)
-                            return
                     elif self.quit_button.checkForInput(self.menu_mouse_pos):
                         self.run = False
         

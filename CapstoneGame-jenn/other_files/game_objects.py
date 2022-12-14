@@ -9,8 +9,6 @@ Created on Sun Sep 18 17:15:59 2022
 import pygame
 import math
 import os
-import threading
-import modules.game_algos as algos
 
 class Agent(pygame.sprite.Sprite):
     def __init__(self, start_x:int, start_y:int, size:int, png_image:str):
@@ -144,20 +142,12 @@ class Bullets(pygame.sprite.Sprite):
                 self.reverse = (-self.reverse)
                 return True
 
-        def check_player_collide(self, test_sprite:Player, q1, pwm):
+        def check_player_collide(self, test_sprite:Player):
             if pygame.sprite.collide_rect(self, test_sprite):
                 if self. x >= test_sprite.x:
-                    q1.put({'Command':'write', 'Service':'TENS', 'Characteristic':'Right', 'Value':int(1).to_bytes(1,'big')})
-                    q1.put({'Command':'write', 'Service':'ERM', 'Characteristic':'Right PWM', 'Value':int(245).to_bytes(2,'little')}) #pwm
-                    #threading.Timer(10, q1.put({'Command':'write', 'Service':'TENS', 'Characteristic':'Right', 'Value':int(1).to_bytes(1,'little')}))
-                    #threading.Timer(1, q1.put({'Command':'write', 'Service':'ERM', 'Characteristic':'Right PWM', 'Value':int(0).to_bytes(2,'little')}))
-                    #print('hit right')
+                    print('hit right')
                 else:
-                    #print('hit left')
-                    q1.put({'Command':'write', 'Service':'TENS', 'Characteristic':'Left', 'Value':int(1).to_bytes(1,'big')})
-                    q1.put({'Command':'write', 'Service':'ERM', 'Characteristic':'Left PWM', 'Value':int(245).to_bytes(2,'little')}) #pwm
-                    #threading.Timer(10, q1.put({'Command':'write', 'Service':'TENS', 'Characteristic':'Left', 'Value':int(1).to_bytes(1,'little')}))
-                    #threading.Timer(1, q1.put({'Command':'write', 'Service':'ERM', 'Characteristic':'Left PWM', 'Value':int(0).to_bytes(2,'little')}))
+                    print('hit left')
                 return True
     
 class Enemy(Agent):

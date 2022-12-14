@@ -30,8 +30,7 @@ class Controller:
                 self.analog_stick_ref[key]['x'] = self.status[key]['analog-sticks'][key]['horizontal']
                 self.analog_stick_ref[key]['y'] = self.status[key]['analog-sticks'][key]['vertical']
 
-        self.accel_event = pygame.event.Event(pygame.USEREVENT+3)
-        print('accel event:'+str(self.accel_event))
+        self.accel_event = pygame.event.Event(pygame.USEREVENT)
 
         self.run = True
         threading.Thread(target = self.monitor_joycon).start()
@@ -68,8 +67,3 @@ class Controller:
                     del self.joycon[key]
 
             time.sleep(0.01667)
-        
-        if None not in self.joycon_id['right']:
-            self.joycon['right']._close()
-        if None not in self.joycon_id['left']:
-            self.joycon['left']._close()

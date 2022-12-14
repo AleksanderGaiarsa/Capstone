@@ -1,4 +1,4 @@
-<server-configuration name="Anything" uuid = 'C99FBC97-F994-4AD3-8BB1-F791CA1785C6'>
+<server-configuration name="Anything" uuid = 'A3B5C793-F6B1-4FAB-B795-CDED06EBE1C1'>
 	<service name = 'TENS' uuid="b2813a3e-5fa0-11ed-9b6a-0242ac120002">
 		<characteristic name="Right" uuid="b2813caa-5fa0-11ed-9b6a-0242ac120002">
 			<permission name="WRITE" />
@@ -26,9 +26,6 @@
 			<permission name="NOTIFY" />
 		</characteristic>
 	</service>
-	<service name = 'Heart Rate' uuid="180D">
-		<characteristic name="Heart Rate Measurements" uuid="2A37">
-			<permission name="NOTIFY" />
-		</characteristic>
-	</service>
 </server-configuration>
+
+

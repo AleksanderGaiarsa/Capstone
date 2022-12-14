@@ -2,6 +2,8 @@ import asyncio
 from bleak import BleakScanner, BleakClient
 import xml.etree.ElementTree as ET
 import queue
+import threading
+import time
 
 #EXAMPLE profile.service['TENS'].char['left'].uuid
 
@@ -22,8 +24,10 @@ class GATT_Profile():
 
 
 class GATT_Client(BleakClient):
-    def __init__(self, dev_name = 'Arduino_Nano_33_iot'):
+    def __init__(self, q_from_ble, dev_name = 'Arduino_Nano_33_iot'):
         self.parseXML('./Game/references/Server_'+dev_name+'.xml')
+
+        self.q_from_ble = q_from_ble
 
         super().__init__(self.client_uuid)
 
@@ -47,6 +51,7 @@ class GATT_Client(BleakClient):
     async def GATT_connect(self):
         try:
             await self.connect()
+            print('Succesfully Connected to Arduino')
         except Exception as e:
             print(e)
     
@@ -58,15 +63,29 @@ class GATT_Client(BleakClient):
     
     async def GATT_write(self, service:str, char:str, val:int):
         try:
-            await self.write_gatt_char(self.profile.service[service].char[char].uuid, bytearray(val))
+            print('writting')
+            await self.write_gatt_char(self.profile.services[service].char[char].uuid, bytearray(val))
+            print('finished writting')
         except Exception as e:
             pass
 
-    async def GATT_read(self):
-        pass
+    async def GATT_read(self, service:str, char:str, val):
+        if self.is_connected:
+            result = await self.read_gatt_char(self.profile.services[service].char[char].uuid)
+            result=int.from_bytes(result, 'little')
+            self.q_from_ble.put(result)
+    
+    def GSR_callback(self, sender:int, data:bytearray):
+        print(data)
+        self.q_from_ble.put(data)
 
-    async def GATT_notify(self):
-        pass
+    async def GATT_start_notify(self, service:str, char:str, val):
+        print('notify_started')
+        await self.start_notify(self.profile.services[service].char[char].uuid, self.GSR_callback)
+    
+    async def GATT_stop_notify(self, service:str, char:str, val):
+        print('notify_ended')
+        await self.stop_notify(self.profile.services[service].char[char].uuid)
     
     async def execute_queue(self, q1:queue.Queue):
         while(not q1.empty()):
@@ -74,16 +93,14 @@ class GATT_Client(BleakClient):
             func = getattr(self, 'GATT_'+task['Command'])
             await func(task['Service'], task['Characteristic'], task['Value'])
 
-
 async def ble_main(q_to_ble, q_from_ble):
-    client = GATT_Client()
+    client = GATT_Client(q_from_ble)
     await client.GATT_connect()
-
-    #Setup
 
     while(1):
         if client.is_connected:
             await client.execute_queue(q_to_ble)
+            await asyncio.sleep(0.001)
         else:
             break
 
