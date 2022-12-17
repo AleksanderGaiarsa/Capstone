@@ -59,7 +59,7 @@ y = df['Bullet Speed'].values
 
 model = LinearRegression()
 model.fit(X, y)
-print(model.coef_, model.intercept_)
+#print(model.coef_, model.intercept_)
 
 # Make predictions with this model
 # print(model.predict(X[:5]))

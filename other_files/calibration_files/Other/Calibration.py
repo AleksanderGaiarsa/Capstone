@@ -67,6 +67,7 @@ df_calib = df_calib.dropna(thresh=3)
 df_calib = df_calib.groupby(['Time'], as_index=False).mean('GSR')
 df_calib = df_calib.dropna()
 
+
 # Compare with test data
 
 X_test = df_calib[['GSR']].values
@@ -124,6 +125,7 @@ lr.fit(X_train,y_train)
 
 # Make predictions of bullet speed using GSR with this model
 dtypes_game = {'Time': 'category',
+               'Bullet Speed': 'float64',
           'GSR': 'float64'}
 # Import real time data to predict:
 # Note that the csv below should be the real-time game round data
@@ -132,12 +134,33 @@ df_game = pd.read_csv('Data0.csv',
     usecols = list(dtypes_game))
 
 df_game = df_game.dropna()
+df_game = df_game.sort_values(by = 'GSR')
+df_game = df_game.reset_index(drop=True)
+#print(df_game)
+
+bullet_speed_pred_rf = rf.predict(df_game[['GSR']])
+bullet_speed_pred_lr = lr.predict(df_game[['GSR']])
+#plt.plot(df_game[['Bullet Speed']],linewidth=0.25)
+plt.scatter(df_game.index, df_game[['Bullet Speed']], s=0.1, color='black')
+plt.plot(bullet_speed_pred_rf, linewidth=3)
+plt.plot(bullet_speed_pred_lr, linewidth=3)
+plt.legend(['Real','Random Forests (Pred)','Linear Regression (Pred)'])
+plt.ylim([0,50])
+plt.xlim([9000,40000])
+plt.title("Stress Versus GSR")
+plt.ylabel("Predicted Bullet Speed (Stress Level)")
+plt.xlabel("GSR in chronological order")
+plt.tick_params(
+    axis='x',          # changes apply to the x-axis
+    which='both',      # both major and minor ticks are affected
+    bottom=False,      # ticks along the bottom edge are off
+    top=False,         # ticks along the top edge are off
+    labelbottom=False) # labels along the bottom edge are off
+
 print(df_game)
 
-bullet_speed_pred_rf = rf.predict([[600]]) 
-bullet_speed_pred_lr = lr.predict([[600]])
-print(bullet_speed_pred_rf)
-print(bullet_speed_pred_lr)
+# print(bullet_speed_pred_rf)
+# print(bullet_speed_pred_lr)
 #print(lr.coef_, lr.intercept_)
 
 # Make predictions of heart rate using GSR with this model
@@ -147,25 +170,25 @@ print(hr_pred)
 # Define outputs
 # Initialisations
 
-PWM = 0
-TENS = 0
-Volume = 0
+# PWM = 0
+# TENS = 0
+# Volume = 0
 
-while True:
-    if (bullet_speed_pred_lr < 0):
-        PWM = 0
-        TENS = 0
-        Volume = 10
-    elif (bullet_speed_pred_lr > 50):
-        PWM = 255
-        TENS = 1   
-        Volume = 50
-    else:
-        PWM = (bullet_speed_pred_lr / 50) *255
-        Volume = round(bullet_speed_pred_lr)
-        if (bullet_speed_pred_lr > 30):
-            TENS = 1
-        else:
-            TENS = 0 
+# while True:
+#     if (bullet_speed_pred_lr < 0):
+#         PWM = 0
+#         TENS = 0
+#         Volume = 10
+#     elif (bullet_speed_pred_lr > 50):
+#         PWM = 255
+#         TENS = 1   
+#         Volume = 50
+#     else:
+#         PWM = (bullet_speed_pred_lr / 50) *255
+#         Volume = round(bullet_speed_pred_lr)
+#         if (bullet_speed_pred_lr > 30):
+#             TENS = 1
+#         else:
+#             TENS = 0 
 
 # The rf.predict defines the stress levels
